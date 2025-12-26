@@ -1,87 +1,115 @@
-# Welcome to React Router!
+# 全国充电桩分布地图
 
-A modern, production-ready template for building full-stack React applications using React Router.
+基于 ECharts + GeoJSON 的交互式中国地图，支持多级下钻和充电桩聚合展示。
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## 功能特性
 
-## Features
+- 🗺️ **多级地图下钻** - 全国 → 省 → 市 → 区，4 级下钻
+- 📍 **充电桩标记** - 支持汽车充电桩和电瓶车充电桩
+- 🔢 **智能聚合** - 按区域聚合显示，展示各类型数量
+- 💡 **详情展示** - Tooltip 显示充电桩详细信息
+- 🎨 **类型区分** - 蓝色(汽车) / 绿色(电瓶车) / 紫色(混合)
+- 📱 **响应式布局** - 自适应屏幕尺寸
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## 技术栈
 
-## Getting Started
+- **框架**: React 19 + React Router 7
+- **地图**: ECharts 6 + GeoJSON
+- **样式**: TailwindCSS 4
+- **语言**: TypeScript 5
+- **构建**: Vite 7
 
-### Installation
+## 快速开始
 
-Install the dependencies:
-
-```bash
-npm install
-```
-
-### Development
-
-Start the development server with HMR:
+### 安装依赖
 
 ```bash
-npm run dev
+pnpm install
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
+### 启动开发服务器
 
 ```bash
-npm run build
+pnpm dev
 ```
 
-## Deployment
+访问 `http://localhost:5173` 查看应用。
 
-### Docker Deployment
-
-To build and run using Docker:
+### 构建生产版本
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+pnpm build
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
+## 项目结构
 
 ```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+app/
+├── components/
+│   └── china-map/
+│       ├── ChinaMap.tsx      # 地图主组件
+│       ├── geoLoader.ts      # GeoJSON 数据加载器
+│       ├── types.ts          # 类型定义
+│       └── index.ts          # 导出
+├── routes/
+│   └── home.tsx              # 首页（地图展示）
+└── root.tsx                  # 根组件
 ```
 
-## Styling
+## 数据结构
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+### 充电桩数据
 
----
+```typescript
+interface ChargingStation {
+  id: string;
+  name: string;                              // 名称
+  address: string;                           // 地址
+  lat: number;                               // 纬度
+  lon: number;                               // 经度
+  price: number;                             // 价格（元/度）
+  type: "car" | "ebike";                     // 类型
+  available: number;                         // 可用数量
+  total: number;                             // 总数量
+  status: "online" | "offline" | "busy";     // 状态
+}
+```
 
-Built with ❤️ using React Router.
+## 地图数据源
+
+- **GeoJSON**: [阿里 DataV](https://datav.aliyun.com/portal/school/atlas/area_selector)
+- 支持层级: 全国 / 省 / 市 / 区县
+
+## 使用示例
+
+```tsx
+import { ChinaMap, type ChargingStation } from "./components/china-map";
+
+const stations: ChargingStation[] = [
+  {
+    id: "1",
+    name: "光谷软件园充电站",
+    address: "湖北省武汉市洪山区",
+    lat: 30.5052,
+    lon: 114.4285,
+    price: 1.2,
+    type: "car",
+    available: 8,
+    total: 12,
+    status: "online",
+  },
+];
+
+function App() {
+  return (
+    <ChinaMap
+      stations={stations}
+      onStationClick={(station) => console.log(station)}
+    />
+  );
+}
+```
+
+## License
+
+MIT
